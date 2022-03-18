@@ -25,7 +25,7 @@ class RegUserSerializer(serializers.ModelSerializer):
 
 class GetTokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField()
-    username = serializers.CharField(max_length=150, validators=[validate_username])
+    username = serializers.CharField(max_length=150)
 
     class Meta:
         model = User

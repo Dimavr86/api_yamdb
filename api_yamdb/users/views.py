@@ -61,7 +61,7 @@ def get_token(request):
     user = get_object_or_404(User, username=request.data['username'])
     confirmation_code = request.data['confirmation_code']
     if default_token_generator.check_token(user, confirmation_code):
-        token = RefreshToken.for_user(user).access_token
+        token = str(RefreshToken.for_user(user).access_token)
         response = {'token': token}
         return Response(response, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

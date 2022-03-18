@@ -2,19 +2,18 @@ from django.shortcuts import render
 from django.db.models import Avg
 from rest_framework import filters, mixins, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
-
-from reviews.models import Category, Genre, Title
-from .serializers import (CategorySerializer,
-                          GenreSerializer, TitlesSafeMethodSerializer,
-                          TitlesUnSafeMethodSerializer)
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django.shortcuts import get_object_or_404
 
+from reviews.models import Category, Genre, Title, Review, Comment
+from .serializers import (CategorySerializer,
+                          CommentSerializer,
+                          GenreSerializer,
+                          ReviewSerializer,
+                          TitlesSafeMethodSerializer,
+                          TitlesUnSafeMethodSerializer)
 from .permissions import IsOwnerOrReadOnly
-from .serializers import ReviewSerializer, CommentSerializer
-from reviews.models import Review, Comment
 
 
 class CreateListDestroyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
@@ -53,7 +52,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitlesUnSafeMethodSerializer
 
 
-class ReviewSet(viewsets.ModelViewSet):
+class ReviewViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
     serializer_class = ReviewSerializer
 
@@ -68,7 +67,7 @@ class ReviewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, title=title)
 
 
-class CommentSet(viewsets.ModelViewSet):
+class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
     serializer_class = CommentSerializer
 

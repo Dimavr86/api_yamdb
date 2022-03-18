@@ -44,7 +44,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     # permission_classes = [IsAdminOrReadOnly]
     filter_backends = (filters.SearchFilter,)
-    filterset_class = TitleFilter
+#    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):

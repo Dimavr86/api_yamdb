@@ -46,9 +46,9 @@ def register_user(request):
         serializer.save()
     user = User.objects.get(username=request.data['username'],
                             email=request.data['email'])
-    conformation_code = default_token_generator.make_token(user)
+    confirmation_code = default_token_generator.make_token(user)
     send_mail(f'Здравствуйте {str(user.username)}! Ваш код: ',
-              conformation_code,
+              confirmation_code,
               settings.EMAIL_FOR_AUTH_LETTERS,
               [request.data['email']])
     return Response(serializer.data, status=status.HTTP_200_OK)

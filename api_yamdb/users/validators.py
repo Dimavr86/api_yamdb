@@ -5,10 +5,11 @@ from .models import User
 
 def validate_username(value):
     if value == 'me':
-        raise ValidationError('Вы уже назвались этим именем')
+        raise ValidationError('Выберите другое имя')
     elif User.objects.filter(username=value).exists():
-        raise ValidationError('Имя уже занято')
+        raise ValidationError('Такое имя уже зарегестрировано!')
 
 def validate_email(value):
     if User.objects.filter(email=value).exists():
         raise ValidationError('Такая почта уже используется')
+

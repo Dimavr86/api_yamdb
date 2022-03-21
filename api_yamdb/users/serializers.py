@@ -8,8 +8,8 @@ from .validators import validate_email, validate_username
 
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=254, validators=[validate_email])
-    username = serializers.CharField(max_length=150, validators=[validate_username])
+    email = serializers.EmailField(max_length=254)
+    username = serializers.CharField(max_length=150)
 
     class Meta:
         model = User
@@ -24,7 +24,7 @@ class RegUserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email')
 
 class GetTokenSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=150, validators=[validate_username])
+    username = serializers.CharField(max_length=150)
     confirmation_code = serializers.CharField()
 
     class Meta:
@@ -37,3 +37,4 @@ class GetTokenSerializer(serializers.ModelSerializer):
         if str(confirmation_code) != data['confirmation_code']:
             raise ValidationError('Некорректный или устаревший код')
         return data
+

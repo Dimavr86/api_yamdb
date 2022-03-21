@@ -46,6 +46,7 @@ class Genre(models.Model):
     def __str__(self):
         return self.name
 
+
 class Title(models.Model):
     name = models.TextField(
         'Название произведения',
@@ -89,7 +90,6 @@ class Title(models.Model):
         return self.name[:50]
 
 
-
 class Review(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
@@ -115,12 +115,16 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+        ordering = ('-pub_date',)
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'title'],
-                name='unique_user_following'
+                name='unique_user_review'
             )
         ]
+
+    def __str__(self):
+        return self.text[:25]
 
 
 class Comment(models.Model):
@@ -144,3 +148,7 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
+        ordering = ('-pub_date',)
+
+    def __str__(self):
+        return self.text[:25]

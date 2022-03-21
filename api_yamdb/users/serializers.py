@@ -24,8 +24,8 @@ class RegUserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email')
 
 class GetTokenSerializer(serializers.ModelSerializer):
-    confirmation_code = serializers.CharField()
     username = serializers.CharField(max_length=150)
+    confirmation_code = serializers.CharField()
 
     class Meta:
         model = User
@@ -35,5 +35,5 @@ class GetTokenSerializer(serializers.ModelSerializer):
         user = get_object_or_404(User, username=data['username'])
         confirmation_code = default_token_generator.make_token(user)
         if str(confirmation_code) != data['confirmation_code']:
-            raise ValidationError('Код неверный!')
+            raise ValidationError('Некорректный или устаревший код')
         return data

@@ -9,32 +9,9 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-from .permissions import AdminOnly, OwnOnly
+from .permissions import AdminOnly, OwnerOnly
 from .serializers import GetTokenSerializer, RegUserSerializer, UserSerializer
 
-
-class UsersView(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    lookup_field = 'username'
-    serializer_class = UserSerializer
-    permission_classes = (AdminOnly,)
-
-    @action(detail=False, methods=['get', 'patch'],
-            permission_classes=(OwnOnly, IsAuthenticated))
-    def me(self, request):
-        user = get_object_or_404(User, username=self.request.user.username)
-        if request.method == 'GET':
-            serializer = self.get_serializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = self.get_serializer(user,
-                                         data=request.data, partial=True)
-        if serializer.is_valid():
-            if 'role' in request.data:
-                if user.role != 'user':
-                    serializer.save()
-            else:
-                serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -46,10 +23,10 @@ def register_user(request):
         serializer.save()
     user = User.objects.get(username=request.data['username'],
                             email=request.data['email'])
-    confirmation_code = default_token_generator.make_token(user)
+    conformation_code = default_token_generator.make_token(user)
     send_mail(f'Здравствуйте {str(user.username)}! Ваш код: ',
-              confirmation_code,
-              settings.EMAIL_FOR_AUTH_LETTERS,
+              conformation_code,
+              settings.EMAIL_LETTERS,
               [request.data['email']])
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -65,3 +42,29 @@ def get_token(request):
         response = {'token': token}
         return Response(response, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UsersView(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    lookup_field = 'username'
+    serializer_class = UserSerializer
+    permission_classes = (AdminOnly,)
+
+    @action(detail=False, methods=['get', 'patch'],
+            permission_classes=(IsAuthenticated, OwnerOnly))
+    def me(self, request):
+        user = get_object_or_404(User, username=self.request.user.username)
+        if request.method == 'GET':
+            serializer = self.get_serializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        serializer = self.get_serializer(user,
+                                         data=request.data, 
+                                         partial=True)
+
+        if serializer.is_valid():
+            if 'role' in request.data:
+                if user.role != 'user':
+                    serializer.save()
+            else:
+                serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)

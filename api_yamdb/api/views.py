@@ -1,13 +1,13 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, status, pagination, viewsets, serializers
+from rest_framework import filters, mixins, status, pagination, viewsets, serializers, permissions
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from reviews.models import Category, Genre, Review, Title
 
 from .filters import TitleFilter
-from .permissions import IsAuthor, ReadOnly, IsAdmin, IsModerator, IsModeratororAuthororReadonly
+from .permissions import IsAdminOrReadOnly, IsAuthor, ReadOnly, IsAdmin, IsModerator, IsModeratororAuthororReadonly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleReadSerializer,
@@ -29,7 +29,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter, )
     search_fields = ('name',)
-    permission_classes = (ReadOnly, IsAdmin)
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
 
 
@@ -39,13 +39,13 @@ class GenreViewSet(CreateListDestroyViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    permission_classes = (ReadOnly, IsAdmin)
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
-    permission_classes = (ReadOnly, IsAdmin)
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 

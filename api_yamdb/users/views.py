@@ -30,6 +30,7 @@ def register_user(request):
               [request.data['email']])
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_token(request):

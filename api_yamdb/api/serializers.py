@@ -74,3 +74,9 @@ class TitleReadSerializer(serializers.ModelSerializer):
         min_value=1,
         read_only=True
     )
+
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'year', 'category',
+                  'genre', 'description', 'rating',)
+        read_only_fields = fields

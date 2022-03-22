@@ -44,6 +44,7 @@ def get_token(request):
         return Response(response, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UsersView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     lookup_field = 'username'
@@ -59,7 +60,7 @@ class UsersView(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         serializer = self.get_serializer(user,
-                                         data=request.data, 
+                                         data=request.data,
                                          partial=True)
 
         if serializer.is_valid():

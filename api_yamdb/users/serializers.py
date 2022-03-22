@@ -8,20 +8,41 @@ from .validators import validate_email, validate_username
 
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=254, validators=[validate_email])
-    username = serializers.CharField(max_length=150, validators=[validate_username])
+    email = serializers.EmailField(
+        max_length=254,
+        validators=[validate_email]
+    )
+    username = serializers.CharField(
+        max_length=150,
+        validators=[validate_username]
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+
 
 class RegUserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=254, validators=[validate_email])
-    username = serializers.CharField(max_length=150, validators=[validate_username])
+    email = serializers.EmailField(
+        max_length=254,
+        validators=[validate_email]
+    )
+    username = serializers.CharField(
+        max_length=150,
+        validators=[validate_username]
+    )
 
     class Meta:
         model = User
         fields = ('username', 'email')
+
 
 class GetTokenSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=150)

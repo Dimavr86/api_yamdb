@@ -12,4 +12,3 @@ class UserInfoAdmin(admin.ModelAdmin):
     list_display_links = list_display
     search_fields = ('user__username', 'user__first_name',
                      'user__last_name', 'user__email', 'role')
-    

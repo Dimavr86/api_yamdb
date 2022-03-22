@@ -1,16 +1,17 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, status, viewsets, serializers
+from rest_framework import filters, mixins, status, pagination, viewsets, serializers
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from reviews.models import Category, Genre, Review, Title
 
-from .permissions import IsModeratororAuthororReadonly
+from .filters import TitleFilter
+from .permissions import IsAuthor, ReadOnly, IsAdmin, IsModerator, IsModeratororAuthororReadonly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
-                          TitlesSafeMethodSerializer,
-                          TitlesUnSafeMethodSerializer)
+                          TitleReadSerializer,
+                          TitleWriteSerializer)
 
 
 class CreateListDestroyViewSet(
@@ -28,7 +29,8 @@ class CategoryViewSet(CreateListDestroyViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter, )
     search_fields = ('name',)
-    # permission_classes = (IsAdminOrReadOnly, IsSuperuser,)
+    permission_classes = (ReadOnly, IsAdmin)
+    pagination_class = pagination.LimitOffsetPagination
 
 
 class GenreViewSet(CreateListDestroyViewSet):
@@ -37,19 +39,20 @@ class GenreViewSet(CreateListDestroyViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    # permission_classes = (IsAdminOrReadOnly | IsSuperuser,)
+    permission_classes = (ReadOnly, IsAdmin)
+    pagination_class = pagination.LimitOffsetPagination
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
-    # permission_classes = [IsAdminOrReadOnly]
-    filter_backends = (filters.SearchFilter,)
-#    filterset_class = TitleFilter
+    permission_classes = (ReadOnly, IsAdmin)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
-            return TitlesSafeMethodSerializer
-        return TitlesUnSafeMethodSerializer
+            return TitleReadSerializer
+        return TitleWriteSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -59,6 +62,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
         IsModeratororAuthororReadonly
     )
     serializer_class = ReviewSerializer
+    permission_classes = (ReadOnly, IsAuthor, IsModerator, IsAdmin)
+    pagination_class = pagination.LimitOffsetPagination
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')

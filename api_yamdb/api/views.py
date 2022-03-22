@@ -1,13 +1,12 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, status, pagination, viewsets, serializers, permissions
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework import filters, mixins, pagination, viewsets, serializers
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from reviews.models import Category, Genre, Review, Title
 
+from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
-from .permissions import IsAdminOrReadOnly, IsAuthor, ReadOnly, IsAdmin, IsModerator, IsModeratororAuthororReadonly
+from .permissions import IsAdminOrReadOnly, IsModeratororAuthororReadonly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleReadSerializer,
@@ -62,7 +61,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
         IsModeratororAuthororReadonly
     )
     serializer_class = ReviewSerializer
-    # permission_classes = (ReadOnly, IsAuthor, IsModerator, IsAdmin)
     pagination_class = pagination.LimitOffsetPagination
 
     def get_queryset(self):

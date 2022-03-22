@@ -1,8 +1,6 @@
-from django.db import models
 import datetime as dt
-
-from django.core.validators import MaxValueValidator
 from django.db import models
+from django.core.validators import MaxValueValidator
 
 from users.models import User
 
@@ -20,17 +18,14 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = (
-            'slug',
-        )
+        ordering = ('slug',)
 
     def __str__(self):
         return self.name
 
 
 class Genre(models.Model):
-    name = models.TextField(max_length=255
-    )
+    name = models.TextField(max_length=255)
     slug = models.SlugField(
         unique=True,
         max_length=100

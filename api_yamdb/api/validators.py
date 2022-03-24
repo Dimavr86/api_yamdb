@@ -1,12 +1,14 @@
 from rest_framework.exceptions import ValidationError
 
-from .models import User
+from users.models import User
+
+def validate_me(value):
+    if value == 'me':
+        raise ValidationError('Выберите другое имя')
 
 
 def validate_username(value):
-    if value == 'me':
-        raise ValidationError('Выберите другое имя')
-    elif User.objects.filter(username=value).exists():
+    if User.objects.filter(username=value).exists():
         raise ValidationError('Такое имя уже зарегистрировано!')
 
 

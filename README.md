@@ -40,7 +40,6 @@ source venv/Scripts/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 pip install django-filter
-pip install djoser djangorestframework_simplejwt 
 ```
 
 3. Создайте и примените миграции:

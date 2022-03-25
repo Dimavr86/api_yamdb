@@ -7,8 +7,8 @@
 Аутентификация: /api/v1/auth/token/
 Работа с пользователями: /api/v1/users/
 Перечень произведений: /api/v1/titles/
-Типы произведений: /api/v1/genres/
-Жанры произведений: /api/v1/categories/
+Жанры произведений: /api/v1/genres/
+Категории произведений: /api/v1/categories/
 Отзывы на произведения: /api/v1/titles/{title_id}/reviews/
 Комментарии к отзывам: /api/v1/titles/{title_id}/reviews/{review_id}/comments/
 ```
@@ -91,7 +91,91 @@ python manage.py runserver
 }
 ```
 
-Работа с API для авторизованных пользователей:
+### Работа с API для авторизованных пользователей:
 
+Добавление категории (для Администраторов):
+```
+POST /api/v1/categories/
+{
+  "name": "string",
+  "slug": "string"
+}
+```
+Удаление категории (для Администраторов):
+```
+DELETE /api/v1/categories/{slug}/
+```
+Добавление жанра:
+
+Права доступа (для Администраторов):
+```
+POST /api/v1/genres/
+{
+  "name": "string",
+  "slug": "string"
+}
+```
+Удаление жанра (для Администраторов):
+```
+DELETE /api/v1/genres/{slug}/
+```
+Обновление публикации (для Администраторов):
+```
+PUT /api/v1/posts/{id}/
+{
+	"text": "string",
+	"image": "string",
+	"group": "string"
+}
+```
+Добавление произведения:
+
+Права доступа (для Администраторов):
+```
+POST /api/v1/titles/
+{
+  "name": "string",
+  "year": 0,
+  "description": "string",
+  "genre": [
+    "string"
+  ],
+  "category": "string"
+}
+```
+Добавление произведения (для Анонимов)
+```
+GET /api/v1/titles/{titles_id}/
+{
+  "id": int,
+  "name": "string",
+  "year": int,
+  "rating": int,
+  "description": "string",
+  "genre": [
+    {
+      "name": "string",
+      "slug": "string"
+    }
+  ],
+  "category": {
+    "name": "string",
+    "slug": "string"
+  }
+}
+```
+Обновление сведений о произведении (для Администраторов):
+```
+PATCH /api/v1/titles/{titles_id}/
+{
+  "name": "string",
+  "year":  "string",
+  "description": "string",
+  "genre": [
+    "string"
+  ],
+  "category": "string"
+}
+```
 
 

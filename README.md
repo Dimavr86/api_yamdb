@@ -181,13 +181,13 @@ PATCH /api/v1/titles/{titles_id}/
 ### Импорт тестовых данных
 Для сервиса есть возможность загрузить тестовые данные для следующих таблиц:
 ```
-	users
-	category
-	genre
-	titles
-	genre_title
-	review
-	comments
+users
+category
+genre
+titles
+genre_title
+review
+comments
 ```
 Для этого CSV-файлы с данными по этим таблицам необходимо разместить в директории:
 ```
@@ -209,7 +209,7 @@ genre_title: данные загружены успешно
 review: данные загружены успешно
 comments: данные загружены успешно
 ```
-Или
+или
 ```
 При возникновении ошибки:
 
@@ -221,6 +221,3 @@ genre_title: данные загружены успешно
 Ошибка импорта review: UNIQUE constraint failed: reviews_review.id
 Ошибка импорта comments: UNIQUE constraint failed: reviews_comment.id
 ```
-
-
-

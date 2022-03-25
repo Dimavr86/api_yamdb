@@ -1,4 +1,4 @@
-# Описание сервиса «API YaMDB»
+# Описание сервиса «API_YaMDB»
 
 Сервис API для YaMDB собирает отзывы (Review) и оценки пользователей на произведения (Title) в разных категориях и жанрах, а так же комментарии к отзывам. Произведения делятся на категории (Category) и жанры (Genres), список которых может быть расширен, но правами на добавление новых жанров, категорий и произведений обладает только администратор. Для авторизации пользователей используется код подтверждения. Для аутентификации пользователей используются JWT-токены.
 
@@ -177,5 +177,50 @@ PATCH /api/v1/titles/{titles_id}/
   "category": "string"
 }
 ```
+
+### Импорт тестовых данных
+Для сервиса есть возможность загрузить тестовые данные для следующих таблиц:
+```
+	users
+	category
+	genre
+	titles
+	genre_title
+	review
+	comments
+```
+Для этого CSV-файлы с данными по этим таблицам необходимо разместить в директории:
+```
+	api_yamdb/static/data
+```
+После этого в консоли необходимо выполнить команду:
+```
+python manage.py import_csv
+```
+По истечении примерно 1 минуты в консоли будет выведен результат:
+```
+При успешном выполнении:
+
+users: данные загружены успешно
+category: данные загружены успешно
+genre: данные загружены успешно
+titles: данные загружены успешно
+genre_title: данные загружены успешно
+review: данные загружены успешно
+comments: данные загружены успешно
+```
+Или
+```
+При возникновении ошибки:
+
+Ошибка импорта users: UNIQUE constraint failed: users_user.id
+Ошибка импорта category: UNIQUE constraint failed: reviews_category.id
+Ошибка импорта genre: UNIQUE constraint failed: reviews_genre.id
+Ошибка импорта titles: UNIQUE constraint failed: reviews_title.id
+genre_title: данные загружены успешно
+Ошибка импорта review: UNIQUE constraint failed: reviews_review.id
+Ошибка импорта comments: UNIQUE constraint failed: reviews_comment.id
+```
+
 
 

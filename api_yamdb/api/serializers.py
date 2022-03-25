@@ -1,12 +1,12 @@
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
-
-from reviews.models import Review, Comment, Category, Genre, Title
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework.relations import SlugRelatedField
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
-from .validators import validate_email, validate_username, validate_me
+
+from .validators import validate_email, validate_me, validate_username
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -131,12 +131,16 @@ class RegUserSerializer(serializers.ModelSerializer):
         username = data.get('username')
         email = data.get('email')
 
-        if (User.objects.filter(email=email).exists()
-            and User.objects.get(email=email).username != username):
+        if (
+            User.objects.filter(email=email).exists()
+            and User.objects.get(email=email).username != username
+        ):
             raise ValidationError('Укажите имя Пользователя')
 
-        if (User.objects.filter(username=username).exists()
-            and User.objects.get(username=username).email != email):
+        if (
+            User.objects.filter(username=username).exists()
+            and User.objects.get(username=username).email != email
+        ):
             raise ValidationError('Укажите электронную почту')
 
         return data
@@ -159,9 +163,13 @@ class GetTokenSerializer(serializers.ModelSerializer):
         confirmation_code = default_token_generator.make_token(user)
 
         if user is None:
-            raise serializers.ValidationError('Некорректный Пользователь')
+            raise serializers.ValidationError(
+                'Некорректный Пользователь'
+            )
 
         if confirmation_code is None:
-            raise serializers.ValidationError('Некорректный или устаревший код')
-            
+            raise serializers.ValidationError(
+                'Некорректный или устаревший код'
+            )
+
         return data

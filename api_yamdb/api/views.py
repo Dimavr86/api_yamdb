@@ -4,18 +4,20 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, pagination, status, viewsets, serializers
+from rest_framework import filters, mixins, pagination, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
+
 from .filters import TitleFilter
-from .permissions import AdminOnly, IsAdminOrReadOnly, IsModeratororAuthororReadonly, OwnerOnly
+from .permissions import (AdminOnly, IsAdminOrReadOnly,
+                          IsModeratororAuthororReadonly, OwnerOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, GetTokenSerializer, 
+                          GenreSerializer, GetTokenSerializer,
                           RegUserSerializer, ReviewSerializer,
                           TitleReadSerializer, TitleWriteSerializer,
                           UserSerializer)
@@ -38,7 +40,7 @@ class CreateListDestroyViewSet(
 class CategoryViewSet(CreateListDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    
+
 
 class GenreViewSet(CreateListDestroyViewSet):
     queryset = Genre.objects.all()
@@ -163,5 +165,5 @@ class UsersView(viewsets.ModelViewSet):
         if serializer.is_valid(raise_exception=True):
             if not user.is_user:
                 serializer.save()
-  
+
             return Response(serializer.data, status=status.HTTP_200_OK)

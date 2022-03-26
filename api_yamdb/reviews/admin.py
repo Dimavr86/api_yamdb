@@ -1,10 +1,11 @@
+from django.apps import apps
 from django.contrib import admin
+from django.contrib.admin.sites import AlreadyRegistered
 
-from .models import Category, Comment, Genre, Review, Title
 
-
-admin.site.register(Category)
-admin.site.register(Genre)
-admin.site.register(Title)
-admin.site.register(Review)
-admin.site.register(Comment)
+models = apps.get_models()
+try:
+    for model in models:
+        admin.site.register(model)
+except AlreadyRegistered:
+    print("Все модели добавлены в админку")

@@ -1,11 +1,10 @@
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 from reviews.models import Category, Comment, Genre, Review, Title
-from users.models import User
 
+from users.models import User
 from .validators import validate_email, validate_me, validate_username
 
 
@@ -23,17 +22,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        if self.context['request'].method == 'POST':
-            current_user = self.context['request'].user
-            title_id = self.context['view'].kwargs.get(['title_id'][0])
-            title = get_object_or_404(Title, id=title_id)
-            is_review_already_exist = title.reviews.filter(
-                author=current_user
+        if self.context['request'].method != 'POST':
+            return data
+        current_user = self.context['request'].user
+        title_id = self.context['view'].kwargs.get(['title_id'][0])
+        title = get_object_or_404(Title, id=title_id)
+        is_review_already_exist = title.reviews.filter(
+            author=current_user
+        )
+        if is_review_already_exist:
+            raise serializers.ValidationError(
+                'Отзыв на это произведение уже существует!'
             )
-            if is_review_already_exist:
-                raise serializers.ValidationError(
-                    'Отзыв на это произведение уже существует!'
-                )
         return data
 
 
@@ -123,6 +123,7 @@ class UserSerializer(serializers.ModelSerializer):
             'bio',
             'role'
         )
+
 
 class RegUserSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=254)

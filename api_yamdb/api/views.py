@@ -11,6 +11,7 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
@@ -106,22 +107,20 @@ class CommentViewSet(viewsets.ModelViewSet):
 def register_user(request):
     serializer = RegUserSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    
     username = serializer.validated_data['username']
     email = serializer.validated_data['email']
 
     if (User.objects.filter(email=email).exists()
-        and User.objects.get(email=email).username != username):
-            raise serializers.ValidationError(
-                'Email занят другим Пользователем'
-            )
+            and User.objects.get(email=email).username != username):
+        raise serializers.ValidationError(
+            'Email занят другим Пользователем'
+        )
 
     if (User.objects.filter(username=username).exists()
-        and User.objects.get(username=username).email != email
-        ):
-            raise serializers.ValidationError(
-                'Для Пользователя указан неправильный Email'
-            )
+            and User.objects.get(username=username).email != email):
+        raise serializers.ValidationError(
+            'Для Пользователя указан неправильный Email'
+        )
 
     user, created = User.objects.get_or_create(
         username=username,

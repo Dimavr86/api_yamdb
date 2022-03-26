@@ -1,6 +1,8 @@
-from rest_framework.exceptions import ValidationError
+import re
 
+from rest_framework.exceptions import ValidationError
 from users.models import User
+
 
 def validate_me(value):
     if value == 'me':

@@ -1,12 +1,11 @@
-from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import get_object_or_404
-from rest_framework.relations import SlugRelatedField
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-
-from api.validators import validate_email, validate_username, validate_me
-from reviews.models import Review, Comment, Category, Genre, Title
+from rest_framework.relations import SlugRelatedField
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
+
+from api.validators import validate_email, validate_me, validate_username
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -94,7 +93,9 @@ class UserSerializer(serializers.ModelSerializer):
     )
     username = serializers.CharField(
         max_length=150,
-        validators=[validate_username, validate_me]
+        validators=[validate_username,
+                    validate_me,
+                    UnicodeUsernameValidator()]
     )
 
     class Meta:
@@ -108,45 +109,25 @@ class UserSerializer(serializers.ModelSerializer):
             'role'
         )
 
-class RegUserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField()
-    username = serializers.CharField(validators=[validate_me])
-
-    def validate(self, data):
-        username = data.get('username')
-        email = data.get('email')
-
-        if (User.objects.filter(email=email).exists()
-            and User.objects.get(email=email).username != username):
-            raise ValidationError('Укажите имя Пользователя')
-
-        if (User.objects.filter(username=username).exists()
-            and User.objects.get(username=username).email != email):
-            raise ValidationError('Укажите электронную почту')
-
-        return data
+class RegUserSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=254)
+    username = serializers.CharField(
+        max_length=150,
+        validators=[validate_me, UnicodeUsernameValidator()]
+    )
 
     class Meta:
         model = User
         fields = ('username', 'email')
 
 
-class GetTokenSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=150)
+class GetTokenSerializer(serializers.Serializer):
+    username = serializers.CharField(
+        max_length=150,
+        validators=[validate_me]
+    )
     confirmation_code = serializers.CharField()
 
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
-
-    def validate(self, data):
-        user = get_object_or_404(User, username=data['username'])
-        confirmation_code = default_token_generator.make_token(user)
-
-        if user is None:
-            raise serializers.ValidationError('Некорректный Пользователь')
-
-        if confirmation_code is None:
-            raise serializers.ValidationError('Некорректный или устаревший код')
-            
-        return data

@@ -2,23 +2,25 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+class UserRole():
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+
+    ROLES = (
+        (USER, 'Пользователь с паролем'),
+        (MODERATOR, 'Модератор'),
+        (ADMIN, 'Админ'),
+    )
+
+    LEN_ROLES = max(len(i[0]) for i in ROLES)
+
+
 class User(AbstractUser):
-    class UserRole():
-        USER = 'user'
-        MODERATOR = 'moderator'
-        ADMIN = 'admin'
-
-        ROLES = (
-            (USER, 'Пользователь с паролем'),
-            (MODERATOR, 'Модератор'),
-            (ADMIN, 'Админ'),
-        )
-
-        LEN_ROLES = max(len(i[0]) for i in ROLES)
 
     username = models.CharField('Имя Пользователя', max_length=150,
                                 unique=True, blank=False, null=False)
-    email = models.EmailField('Роль пользователя', max_length=254,
+    email = models.EmailField('Email пользователя', max_length=254,
                               unique=True, blank=False, null=False)
     role = models.CharField('Роль пользователя',
                             max_length=UserRole.LEN_ROLES,

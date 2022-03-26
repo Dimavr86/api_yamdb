@@ -1,27 +1,29 @@
-from django.db.models import Avg
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
+import uuid
+
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import (filters, mixins, pagination, serializers, status,
+                            viewsets)
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework import filters, mixins, pagination, viewsets, serializers, status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from api.permissions import AdminOnly, OwnerOnly
-from api.serializers import GetTokenSerializer, RegUserSerializer, UserSerializer
-from api.filters import TitleFilter
-from api.permissions import IsAdminOrReadOnly, IsModeratororAuthororReadonly
-from api.serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer,
-                          TitleReadSerializer,
-                          TitleWriteSerializer)
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
-import uuid
+from api.filters import TitleFilter
+from api.permissions import (AdminOnly, IsAdminOrReadOnly,
+                             IsModeratororAuthororReadonly, OwnerOnly)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, GetTokenSerializer,
+                             RegUserSerializer, ReviewSerializer,
+                             TitleReadSerializer, TitleWriteSerializer,
+                             UserSerializer)
 
 
 class CreateListDestroyViewSet(
@@ -116,8 +118,22 @@ class CommentViewSet(viewsets.ModelViewSet):
 def register_user(request):
     serializer = RegUserSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
+    
     username = serializer.validated_data['username']
     email = serializer.validated_data['email']
+
+    if (User.objects.filter(email=email).exists()
+        and User.objects.get(email=email).username != username):
+            raise serializers.ValidationError(
+                'Email занят другим Пользователем'
+            )
+
+    if (User.objects.filter(username=username).exists()
+        and User.objects.get(username=username).email != email
+        ):
+            raise serializers.ValidationError(
+                'Для Пользователя указан неправильный Email'
+            )
 
     user, created = User.objects.get_or_create(
         username=username,
@@ -146,6 +162,13 @@ def get_token(request):
     confirmation_code = serializer.validated_data['confirmation_code']
 
     user = get_object_or_404(User, username=username)
+    confirmation_code = default_token_generator.make_token(user)
+
+    if user is None:
+        raise serializers.ValidationError('Некорректный Пользователь')
+
+    if confirmation_code is None:
+        raise serializers.ValidationError('Некорректный или устаревший код')
 
     if default_token_generator.check_token(user, confirmation_code):
         token = str(RefreshToken.for_user(user).access_token)
@@ -173,8 +196,6 @@ class UsersView(viewsets.ModelViewSet):
                                          data=request.data,
                                          partial=True)
 
-        if serializer.is_valid(raise_exception=True):
-            if not user.is_user:
-                serializer.save()
+        serializer.is_valid(raise_exception=True)
   
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)

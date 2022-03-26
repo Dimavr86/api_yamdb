@@ -158,20 +158,17 @@ def get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    username = serializer.validated_data['username']
-    confirmation_code = serializer.validated_data['confirmation_code']
-
-    user = get_object_or_404(User, username=username)
-    confirmation_code = default_token_generator.make_token(user)
-
-    if user is None:
-        raise serializers.ValidationError('Некорректный Пользователь')
+    username = get_object_or_404(
+        User,
+        username=serializer.validated_data['username']
+    )
+    confirmation_code = str(serializer.validated_data['confirmation_code'])
 
     if confirmation_code is None:
         raise serializers.ValidationError('Некорректный или устаревший код')
 
-    if default_token_generator.check_token(user, confirmation_code):
-        token = str(RefreshToken.for_user(user).access_token)
+    if default_token_generator.check_token(username, confirmation_code):
+        token = str(RefreshToken.for_user(username).access_token)
         response = {'token': token}
         return Response(response, status=status.HTTP_200_OK)
 
@@ -197,5 +194,7 @@ class UsersView(viewsets.ModelViewSet):
                                          partial=True)
 
         serializer.is_valid(raise_exception=True)
-  
+        if not user.is_user:
+            serializer.save()
+
         return Response(serializer.data, status=status.HTTP_200_OK)

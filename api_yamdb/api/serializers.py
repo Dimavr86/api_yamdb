@@ -124,7 +124,7 @@ class RegUserSerializer(serializers.Serializer):
 class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
-        validators=[validate_me]
+        validators=[validate_me, UnicodeUsernameValidator()]
     )
     confirmation_code = serializers.CharField()
 

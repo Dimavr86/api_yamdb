@@ -1,7 +1,6 @@
+from api.views import UsersView, get_token, register_user
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-
-from api.views import UsersView, get_token, register_user
 
 router_v1 = DefaultRouter()
 router_v1.register('users', UsersView)

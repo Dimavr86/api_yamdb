@@ -1,6 +1,7 @@
 import datetime as dt
-from django.db import models
+
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
 from users.models import User
 
@@ -8,7 +9,7 @@ from users.models import User
 class Category(models.Model):
     name = models.TextField(
         'Название категории',
-        max_length=255
+        max_length=256
     )
     slug = models.SlugField(
         unique=True,
@@ -25,10 +26,10 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.TextField(max_length=255)
+    name = models.TextField(max_length=256)
     slug = models.SlugField(
         unique=True,
-        max_length=100
+        max_length=50
     )
 
     class Meta:
@@ -45,13 +46,10 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.TextField(
         'Название произведения',
-        max_length=255
     )
     description = models.TextField('Описание', blank=True)
     year = models.PositiveSmallIntegerField(
         'Год издания',
-        blank=False,
-        null=False,
         validators=[
             MaxValueValidator(
                 dt.datetime.now().year,
@@ -63,7 +61,6 @@ class Title(models.Model):
         Category,
         on_delete=models.SET_NULL,
         related_name='titles',
-        blank=False,
         null=True,
         verbose_name='Категория',
     )

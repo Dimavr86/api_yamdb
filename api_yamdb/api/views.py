@@ -4,12 +4,14 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, pagination, status, viewsets
+from rest_framework import (filters, mixins, pagination, serializers, status,
+                            viewsets)
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
@@ -105,8 +107,20 @@ class CommentViewSet(viewsets.ModelViewSet):
 def register_user(request):
     serializer = RegUserSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    username = serializer.validated_data.get('username')
-    email = serializer.validated_data.get('email')
+    username = serializer.validated_data['username']
+    email = serializer.validated_data['email']
+
+    if (User.objects.filter(email=email).exists()
+            and User.objects.get(email=email).username != username):
+        raise serializers.ValidationError(
+            'Email занят другим Пользователем'
+        )
+
+    if (User.objects.filter(username=username).exists()
+            and User.objects.get(username=username).email != email):
+        raise serializers.ValidationError(
+            'Для Пользователя указан неправильный Email'
+        )
 
     user, created = User.objects.get_or_create(
         username=username,
@@ -130,14 +144,17 @@ def register_user(request):
 def get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
+    username = get_object_or_404(
+        User,
+        username=serializer.validated_data['username']
+    )
+    confirmation_code = str(serializer.validated_data['confirmation_code'])
 
-    username = serializer.validated_data.get('username')
-    confirmation_code = serializer.validated_data.get('confirmation_code')
+    if confirmation_code is None:
+        raise serializers.ValidationError('Некорректный или устаревший код')
 
-    user = get_object_or_404(User, username=username)
-
-    if default_token_generator.check_token(user, confirmation_code):
-        token = str(RefreshToken.for_user(user).access_token)
+    if default_token_generator.check_token(username, confirmation_code):
+        token = str(RefreshToken.for_user(username).access_token)
         response = {'token': token}
         return Response(response, status=status.HTTP_200_OK)
 
@@ -161,9 +178,8 @@ class UsersView(viewsets.ModelViewSet):
         serializer = self.get_serializer(user,
                                          data=request.data,
                                          partial=True)
+        serializer.is_valid(raise_exception=True)
+        if not user.is_user:
+            serializer.save()
 
-        if serializer.is_valid(raise_exception=True):
-            if not user.is_user:
-                serializer.save()
-
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)

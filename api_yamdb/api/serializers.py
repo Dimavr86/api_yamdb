@@ -125,6 +125,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
+
 class RegUserSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=254)
     username = serializers.CharField(
@@ -137,6 +138,7 @@ class RegUserSerializer(serializers.Serializer):
         fields = ('username', 'email')
 
 
+
 class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
@@ -147,3 +149,4 @@ class GetTokenSerializer(serializers.Serializer):
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
+

@@ -144,7 +144,6 @@ def register_user(request):
 def get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-
     username = get_object_or_404(
         User,
         username=serializer.validated_data['username']
@@ -179,7 +178,6 @@ class UsersView(viewsets.ModelViewSet):
         serializer = self.get_serializer(user,
                                          data=request.data,
                                          partial=True)
-
         serializer.is_valid(raise_exception=True)
         if not user.is_user:
             serializer.save()
